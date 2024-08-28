@@ -9,21 +9,26 @@ class SCS_Frontend {
     }
 
     public static function enqueue_frontend_scripts() {
-        wp_enqueue_script('scs-frontend-js', SCS_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), '1.0.0', true);
-        wp_localize_script('scs-frontend-js', 'scs_ajax', array('ajax_url' => admin_url('admin-ajax.php')));
-    }
+		wp_enqueue_style('scs-frontend-css', SCS_PLUGIN_URL . 'assets/css/frontend.css', array(), '1.0.0');
+		wp_enqueue_script('scs-frontend-js', SCS_PLUGIN_URL . 'assets/js/frontend.js', array('jquery'), '1.0.0', true);
+		wp_localize_script('scs-frontend-js', 'scs_ajax', array(
+			'ajax_url' => admin_url('admin-ajax.php'),
+			'security' => wp_create_nonce('scs_solar_system_nonce'),
+		));
+	}
 
-    public static function render_solar_system_form() {
+
+	public static function render_solar_system_form() {
 		ob_start();
 		?>
 		<form id="scs_solar_system_form">
-			<!-- Customer Details Section -->
+			<!-- Adjusted Customer Name Position -->
 			<div class="scs_customer_details">
-				<label for="scs_project_size">Project Size</label>
-				<input type="text" id="scs_project_size" name="scs_project_size" />
-
 				<label for="scs_customer_name">Customer Name</label>
 				<input type="text" id="scs_customer_name" name="scs_customer_name" />
+
+				<label for="scs_project_size">Project Size</label>
+				<input type="text" id="scs_project_size" name="scs_project_size" />
 
 				<label for="scs_address">Address</label>
 				<input type="text" id="scs_address" name="scs_address" />
@@ -97,6 +102,15 @@ class SCS_Frontend {
 				<input type="number" id="scs_total_wire_cost" name="scs_total_wire_cost" readonly />
 			</div>
 
+			<!-- Dropdown for Estimate/Invoice -->
+			<div class="scs_status_type">
+				<label for="scs_status_type">Status Type</label>
+				<select id="scs_status_type" name="scs_status_type">
+					<option value="estimate">Estimate</option>
+					<option value="invoice">Invoice</option>
+				</select>
+			</div>
+
 			<!-- Master Total Section -->
 			<div class="scs_master_total">
 				<h3>Grand Total</h3>
@@ -114,30 +128,53 @@ class SCS_Frontend {
 
 
     public static function save_solar_system() {
-        // Check nonce for security
-        check_ajax_referer('scs_solar_system_nonce', 'security');
+		if (!isset($_POST['security']) || !wp_verify_nonce($_POST['security'], 'scs_solar_system_nonce')) {
+			wp_send_json_error(array('message' => 'Invalid nonce.'));
+			return;
+		}
 
-        $post_data = array(
-            'post_title'   => sanitize_text_field($_POST['scs_customer_name']),
-            'post_type'    => 'solar_system',
-            'post_status'  => 'publish',
-            'meta_input'   => array(
-                'scs_project_size' => sanitize_text_field($_POST['scs_project_size']),
-                'scs_address' => sanitize_text_field($_POST['scs_address']),
-                'scs_proposal_date' => sanitize_text_field($_POST['scs_proposal_date']),
-                'scs_notes' => sanitize_textarea_field($_POST['scs_notes']),
-                'scs_quotation_details' => $_POST['scs_quotation_details'], // Ensure proper sanitization/validation
-                'scs_total_project_cost' => floatval($_POST['scs_total_project_cost']),
-                'scs_quotation_notes' => sanitize_textarea_field($_POST['scs_quotation_notes']),
-            ),
-        );
+		// Gather post data and save it
+		$post_data = array(
+			'post_title'   => sanitize_text_field($_POST['scs_customer_name']),
+			'post_type'    => 'solar_system',
+			'post_status'  => 'publish',
+			'meta_input'   => array(
+				'scs_customer_name'   => sanitize_text_field($_POST['scs_customer_name']),
+				'scs_project_size' => sanitize_text_field($_POST['scs_project_size']),
+				'scs_address' => sanitize_text_field($_POST['scs_address']),
+				'scs_proposal_date' => sanitize_text_field($_POST['scs_proposal_date']),
+				'scs_notes' => sanitize_textarea_field($_POST['scs_notes']),
+				'scs_quotation_details' => $_POST['scs_quotation_details'], // Ensure proper sanitization/validation
+				'scs_total_project_cost' => floatval($_POST['scs_total_project_cost']),
+				'scs_wire_calculations' => $_POST['scs_wire_calculations'], // Ensure proper sanitization/validation
+				'scs_total_wire_cost' => floatval($_POST['scs_total_wire_cost']),
+				'scs_grand_total' => floatval($_POST['scs_grand_total']),
+			),
+		);
 
-        $post_id = wp_insert_post($post_data);
+		$post_id = wp_insert_post($post_data);
 
-        if ($post_id) {
-            wp_send_json_success(array('message' => 'Solar System Estimate/Invoice saved successfully.'));
-        } else {
-            wp_send_json_error(array('message' => 'Failed to save Solar System Estimate/Invoice.'));
-        }
-    }
+		if ($post_id) {
+			// Handle the taxonomy term
+			$status_type = sanitize_text_field($_POST['scs_status_type']);
+
+			// Check if the term exists, if not, create it
+			if (!term_exists($status_type, 'scs_type')) {
+				$new_term = wp_insert_term($status_type, 'scs_type');
+				$status_type_id = $new_term['term_id'];
+			} else {
+				$term = get_term_by('name', $status_type, 'scs_type');
+				$status_type_id = $term->term_id;
+			}
+
+			// Set the term for the post
+			wp_set_post_terms($post_id, $status_type_id, 'scs_type');
+
+			wp_send_json_success(array('message' => 'Solar System saved successfully.'));
+		} else {
+			wp_send_json_error(array('message' => 'Failed to save Solar System.'));
+		}
+
+	}
+
 }
