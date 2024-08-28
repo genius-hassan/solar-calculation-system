@@ -1,7 +1,6 @@
-/* frontend.css */
-
 /* Form container */
-#scs_solar_system_form {
+#scs_solar_system_form,
+#scs-profile-setup-form {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
@@ -11,7 +10,8 @@
 }
 
 /* Form labels */
-#scs_solar_system_form label {
+#scs_solar_system_form label,
+#scs-profile-setup-form label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
@@ -22,7 +22,10 @@
 #scs_solar_system_form input[type="text"],
 #scs_solar_system_form input[type="date"],
 #scs_solar_system_form input[type="number"],
-#scs_solar_system_form textarea {
+#scs_solar_system_form textarea,
+#scs-profile-setup-form input[type="text"],
+#scs-profile-setup-form input[type="file"],
+#scs-profile-setup-form textarea {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -33,12 +36,14 @@
     box-sizing: border-box;
 }
 
-#scs_solar_system_form textarea {
+#scs_solar_system_form textarea,
+#scs-profile-setup-form textarea {
     height: 100px;
 }
 
 /* Buttons */
-#scs_solar_system_form button {
+#scs_solar_system_form button,
+#scs-profile-setup-form button {
     background-color: #007bff;
     color: #fff;
     padding: 10px 15px;
@@ -49,22 +54,75 @@
     margin-top: 10px;
 }
 
-#scs_solar_system_form button:hover {
+#scs_solar_system_form button:hover,
+#scs-profile-setup-form button:hover {
     background-color: #0056b3;
+}
+
+/* Dashboard Wrapper */
+#scs-dashboard-wrapper {
+    display: flex;
+    margin: 20px;
+    max-width: 1100px;
+}
+
+/* Navigation Panel */
+#scs-dashboard-nav {
+    width: 200px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+}
+
+#scs-dashboard-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#scs-dashboard-nav ul li {
+    margin-bottom: 15px;
+}
+
+#scs-dashboard-nav ul li a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+#scs-dashboard-nav ul li a:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Content Area */
+#scs-dashboard-content {
+    flex-grow: 1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 /* Dynamic item container */
 
-
 /* Add Item button */
-#scs_add_item {
+#scs_add_item,
+#scs_add_wire_item {
     display: block;
     margin-top: 20px;
     margin-bottom: 20px;
     background-color: #28a745;
 }
 
-#scs_add_item:hover {
+#scs_add_item:hover,
+#scs_add_wire_item:hover {
     background-color: #218838;
 }
 
@@ -108,22 +166,6 @@ button.scs_remove_item:hover {
     color: darkred;
 }
 
-button#scs_add_item,
-button#scs_add_wire_item {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-button#scs_add_item:hover,
-button#scs_add_wire_item:hover {
-    background-color: #218838;
-}
-
 /* Total Sections */
 .scs_quotation_details label,
 .scs_wire_calculations label,
@@ -133,12 +175,57 @@ button#scs_add_wire_item:hover {
     display: block;
 }
 
-
 .scs_quotation_details input {
-  margin-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
+
 .scs_remove_item {
-  background: transparent !important;
-  margin: 0 !important;
-  padding: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#scs_solar_system_form select,
+#scs-profile-setup-form select {
+    width: 100%;
+    padding: 10px;
+    padding-right: 30px; /* Extra space for the arrow */
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    box-sizing: border-box;
+    appearance: none; /* Removes default dropdown arrow */
+    -webkit-appearance: none; /* For Safari */
+    -moz-appearance: none; /* For Firefox */
+    position: relative;
+}
+
+#scs_solar_system_form select::after,
+#scs-profile-setup-form select::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333; /* Arrow color */
+    transform: translateY(-50%);
+}
+
+#scs_solar_system_form select:focus,
+#scs-profile-setup-form select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+
+#scs-dashboard-nav ul li a.active {
+    background-color: #007bff;
+    color: #fff;
 }

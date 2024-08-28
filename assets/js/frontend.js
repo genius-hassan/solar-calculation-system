@@ -80,17 +80,46 @@ jQuery(document).ready(function($) {
     }
 
     $('#scs_solar_system_form').on('submit', function(e) {
-        e.preventDefault();
+		e.preventDefault();
 
-        let formData = $(this).serialize();
-        formData += '&action=scs_save_solar_system&security=' + scs_ajax.security;
+		let formData = $(this).serialize();
+		formData += '&action=scs_save_solar_system&security=' + scs_ajax.security;
 
-        $.post(scs_ajax.ajax_url, formData, function(response) {
-            if (response.success) {
-                alert(response.data.message);
-            } else {
-                alert(response.data.message);
-            }
-        });
-    });
+		$.post(scs_ajax.ajax_url, formData, function(response) {
+			if (response.success) {
+				// If the response is successful, redirect to the View All section
+				window.location.href = response.data.redirect_url;
+			} else {
+				alert(response.data.message);
+			}
+		});
+	});
+	
+	// Profile updateCommands
+	$('#scs-profile-setup-form').on('submit', function(e) {
+		e.preventDefault();
+
+		let formData = new FormData(this);
+		formData.append('action', 'scs_save_profile');
+		formData.append('security', scs_ajax.security);
+
+		$.ajax({
+			url: scs_ajax.ajax_url,
+			type: 'POST',
+			data: formData,
+			processData: false,
+			contentType: false,
+			success: function(response) {
+				if (response.success) {
+					alert(response.data.message);
+					// Optionally, reload the page or redirect to another section
+					location.reload();
+				} else {
+					alert(response.data.message);
+				}
+			}
+		});
+	});
+
+
 });

@@ -6,41 +6,48 @@ class SCS_Dashboard {
     }
 
     public static function render_dashboard() {
-        // First, check if the user is logged in
-        if (!is_user_logged_in()) {
-            return 'You must be logged in to access this page.';
-        }
+		// First, check if the user is logged in
+		if (!is_user_logged_in()) {
+			wp_redirect(home_url('/login'));
+			exit;
+		}
 
-        // Get the current user
-        $user = wp_get_current_user();
+		// Get the current user
+		$user = wp_get_current_user();
 
-        // Check if the user has the correct roles
-        if (in_array('administrator', (array) $user->roles) || in_array('solar_technician', (array) $user->roles)) {
-            // User has access, render the dashboard
-            ob_start();
-            ?>
-            <div id="scs-dashboard">
-                <h2>Solar System Dashboard</h2>
-                <ul>
-                    <li><a href="<?php echo add_query_arg('section', 'profile', home_url('/solar-system-dashboard')); ?>">Profile Setup</a></li>
-                    <li><a href="<?php echo add_query_arg('section', 'estimates', home_url('/solar-system-dashboard')); ?>">View Estimates/Invoices</a></li>
-                    <li><a href="<?php echo add_query_arg('section', 'create', home_url('/solar-system-dashboard')); ?>">Create Estimate/Invoice</a></li>
-                </ul>
+		// Get the current section
+		$current_section = isset($_GET['section']) ? sanitize_text_field($_GET['section']) : 'profile';
 
-                <div class="scs-dashboard-content">
-                    <?php self::render_dashboard_section(); ?>
-                </div>
-            </div>
-            <?php
-            return ob_get_clean();
-        } else {
-            // User does not have access
-            return 'You do not have access to this page.';
-        }
-    }
+		// Check if the user has the correct roles
+		if (in_array('administrator', (array) $user->roles) || in_array('solar_technician', (array) $user->roles)) {
+			// User has access, render the dashboard
+			ob_start();
+			?>
+			<div id="scs-dashboard-wrapper">
+				<aside id="scs-dashboard-nav">
+					<ul>
+						<li><a href="<?php echo add_query_arg('section', 'profile', home_url('/solar-system-dashboard')); ?>" class="<?php echo ($current_section == 'profile') ? 'active' : ''; ?>">Profile Setup</a></li>
+						<li><a href="<?php echo add_query_arg('section', 'estimates', home_url('/solar-system-dashboard')); ?>" class="<?php echo ($current_section == 'estimates') ? 'active' : ''; ?>">View Invoices</a></li>
+						<li><a href="<?php echo add_query_arg('section', 'create', home_url('/solar-system-dashboard')); ?>" class="<?php echo ($current_section == 'create') ? 'active' : ''; ?>">Create Invoice</a></li>
+					</ul>
+				</aside>
+
+				<section id="scs-dashboard-content">
+					<?php self::render_dashboard_section(); ?>
+				</section>
+			</div>
+			<?php
+			return ob_get_clean();
+		} else {
+			// User does not have access
+			return 'You do not have access to this page.';
+		}
+	}
+
 
     public static function render_dashboard_section() {
         $section = isset($_GET['section']) ? sanitize_text_field($_GET['section']) : '';
+		$post_id = isset($_GET['invoice_id']) ? intval($_GET['invoice_id']) : 0; // Get the invoice_id from the URL
 
         switch ($section) {
             case 'profile':
@@ -50,7 +57,7 @@ class SCS_Dashboard {
                 echo self::render_estimates_invoices();
                 break;
             case 'create':
-                echo self::render_create_estimate_invoice();
+				echo self::render_create_estimate_invoice($post_id);
                 break;
             default:
                 echo '<p>Welcome to the Solar System Dashboard. Please choose an option from the menu.</p>';
