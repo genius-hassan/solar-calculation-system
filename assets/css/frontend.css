@@ -54,31 +54,7 @@
 }
 
 /* Dynamic item container */
-.scs_quotation_item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
 
-.scs_quotation_item label {
-    flex: 1;
-    margin-right: 10px;
-}
-
-.scs_quotation_item input[type="text"],
-.scs_quotation_item input[type="number"] {
-    flex: 2;
-    margin-right: 10px;
-}
-
-.scs_quotation_item button {
-    background-color: #dc3545;
-}
-
-.scs_quotation_item button:hover {
-    background-color: #c82333;
-}
 
 /* Add Item button */
 #scs_add_item {
@@ -90,4 +66,79 @@
 
 #scs_add_item:hover {
     background-color: #218838;
+}
+
+/* Basic Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+td input[type="text"],
+td input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button.scs_remove_item {
+    background-color: transparent;
+    color: red;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button.scs_remove_item:hover {
+    color: darkred;
+}
+
+button#scs_add_item,
+button#scs_add_wire_item {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+button#scs_add_item:hover,
+button#scs_add_wire_item:hover {
+    background-color: #218838;
+}
+
+/* Total Sections */
+.scs_quotation_details label,
+.scs_wire_calculations label,
+.scs_master_total label {
+    font-weight: bold;
+    margin-top: 15px;
+    display: block;
+}
+
+
+.scs_quotation_details input {
+  margin-bottom: 0 !important;
+}
+.scs_remove_item {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
