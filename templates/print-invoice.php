@@ -58,6 +58,7 @@ $company_logo = get_user_meta($user_id, 'scs_company_logo', true);
             padding: 20px;
             border: 1px solid #ddd;
             background-color: #fff;
+            position: relative;
         }
         .invoice-header {
             text-align: center;
@@ -71,6 +72,12 @@ $company_logo = get_user_meta($user_id, 'scs_company_logo', true);
             margin: 0;
             font-size: 24px;
             color: #d90000;
+        }
+        .invoice-date {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-weight: bold;
         }
         .invoice-info, .invoice-total, .invoice-notes {
             margin-bottom: 20px;
@@ -108,6 +115,11 @@ $company_logo = get_user_meta($user_id, 'scs_company_logo', true);
 </head>
 <body>
 <div class="invoice-container">
+    <!-- Date on the Top Right -->
+    <div class="invoice-date">
+        <p><?php echo esc_html($formatted_date); ?></p>
+    </div>
+    
     <div class="invoice-header">
         <?php if ($company_logo): ?>
             <img src="<?php echo esc_url($company_logo); ?>" alt="Company Logo">
@@ -118,7 +130,6 @@ $company_logo = get_user_meta($user_id, 'scs_company_logo', true);
         <p><strong>Customer Name:</strong> <?php echo esc_html($customer_name); ?></p>
         <p><strong>Site Address:</strong> <?php echo esc_html($address); ?></p>
         <p><strong>DC System Size:</strong> <?php echo esc_html($project_size); ?></p>
-        <p><strong>Quotation Date:</strong> <?php echo esc_html($formatted_date); ?></p>
     </div>
     <table class="invoice-table">
         <thead>
