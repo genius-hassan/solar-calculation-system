@@ -57,3 +57,27 @@ function scs_enqueue_assets() {
 }
 add_action( 'wp_enqueue_scripts', 'scs_enqueue_assets' );
 add_action( 'admin_enqueue_scripts', 'scs_enqueue_assets' );
+
+
+add_action('init', function () {
+    add_rewrite_rule('^print-invoice/?$', 'index.php?print_invoice=1', 'top');
+});
+
+add_filter('query_vars', function ($query_vars) {
+    $query_vars[] = 'print_invoice';
+    $query_vars[] = 'invoice_id';
+    return $query_vars;
+});
+
+add_action('template_redirect', function () {
+    if (get_query_var('print_invoice')) {
+        include plugin_dir_path(__FILE__) . 'templates/print-invoice.php';
+        exit;
+    }
+});
+
+register_activation_hook(__FILE__, 'scs_flush_rewrite_rules');
+function scs_flush_rewrite_rules() {
+    scs_add_rewrite_rules();
+    flush_rewrite_rules();
+}
