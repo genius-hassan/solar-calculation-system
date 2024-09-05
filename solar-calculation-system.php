@@ -81,3 +81,78 @@ function scs_flush_rewrite_rules() {
     scs_add_rewrite_rules();
     flush_rewrite_rules();
 }
+
+// API End Points for the Login
+add_action('rest_api_init', function () {
+    register_rest_route('solar/v1', '/login', array(
+        'methods' => 'POST',
+        'callback' => 'solar_login_callback',
+        'permission_callback' => '__return_true', // This allows any user to call this endpoint
+    ));
+});
+
+function solar_login_callback(WP_REST_Request $request) {
+    $username = $request->get_param('username');
+    $password = $request->get_param('password');
+
+    if (empty($username) || empty($password)) {
+        return new WP_Error('authentication_failed', __('Username or Password cannot be empty'), array('status' => 403));
+    }
+
+    $user = wp_authenticate($username, $password);
+
+    if (is_wp_error($user)) {
+        return new WP_Error('authentication_failed', __('Invalid credentials'), array('status' => 403));
+    }
+
+    // Return success response
+    return rest_ensure_response(array(
+        'success' => true,
+        'user_id' => $user->ID,
+        // Add any other user data you want to return
+    ));
+}
+
+
+add_action('rest_api_init', function () {
+    register_rest_route('solar/v1', '/solar_system', array(
+        'methods' => 'POST',
+        'callback' => 'solar_create_invoice_callback',
+        'permission_callback' => 'solar_permission_check',
+    ));
+});
+
+function solar_create_invoice_callback(WP_REST_Request $request) {
+    $invoice_data = $request->get_json_params();
+
+    $post_data = array(
+        'post_title'    => sanitize_text_field($invoice_data['customerName']),
+        'post_type'     => 'solar_system',
+        'post_status'   => 'publish',
+        'meta_input'    => array(
+            'scs_project_size'        => sanitize_text_field($invoice_data['projectSize']),
+            'scs_customer_name'       => sanitize_text_field($invoice_data['customerName']),
+            'scs_address'             => sanitize_text_field($invoice_data['address']),
+            'scs_proposal_date'       => sanitize_text_field($invoice_data['proposalDate']),
+            'scs_notes'               => sanitize_textarea_field($invoice_data['notes']),
+            'scs_quotation_details'   => $invoice_data['quotationDetails'],
+            'scs_wire_calculations'   => $invoice_data['wireCalculations'],
+            'scs_total_project_cost'  => floatval($invoice_data['totalProjectCost']),
+            'scs_total_wire_cost'     => floatval($invoice_data['totalWireCost']),
+            'scs_grand_total'         => floatval($invoice_data['grandTotal']),
+            'scs_status_type'         => sanitize_text_field($invoice_data['statusType']),
+        ),
+    );
+
+    $post_id = wp_insert_post($post_data);
+
+    if (is_wp_error($post_id)) {
+        return new WP_Error('create_failed', __('Failed to create invoice'), array('status' => 500));
+    }
+
+    return rest_ensure_response(array('success' => true, 'post_id' => $post_id));
+}
+
+function solar_permission_check() {
+    return current_user_can('edit_posts'); // Ensure the correct capabilities are assigned
+}
